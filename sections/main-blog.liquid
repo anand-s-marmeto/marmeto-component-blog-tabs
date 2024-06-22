@@ -1,0 +1,178 @@
+{{ 'component-article-card.css' | asset_url | stylesheet_tag }}
+{{ 'section-main-blog.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{%- paginate blog.articles by 6 -%}
+  <marmeto-component-blog-tags>
+    <div class="main-blog page-width section-{{ section.id }}-padding">
+    <div class="main-blog__header">
+      <h1 class="title--primary">
+      {{ blog.title | escape }}
+      </h1>
+      <ul class="main-blog__categories">
+      <li class="category {% if current_tags == blank %}is-active{% endif %}"><a href="/blogs/{{- blog.handle -}}" >All blogs</a></li>
+      {% for tag in blog.all_tags %}
+        {% assign my_tag = tag | handleize %}
+        {% assign current_tag = current_tags |  handleize %}
+        <li class="category {% if current_tag == my_tag %}is-active{% endif %}">
+          <a href="/blogs/{{- blog.handle -}}/tagged/{{- my_tag -}}">{{ tag }}</a>
+        </li>
+      {% endfor %}
+      </ul>
+    </div>
+
+    <div class="blog-articles {% if section.settings.layout == 'collage' %}blog-articles--collage{% endif %}">
+      <div class="blogs grid grid--3-col-desktop grid--2-col-tablet grid--1-col">
+        {%- for article in blog.articles -%}
+          <a href="{{ article.url }}" class="grid__item">
+            <div class="article-image">
+              {% render 'responsive-picture',class:'image', desktopImage : article.image , mobileImage: article.image %} 
+              <div class="article-tag">
+                <span>{{ article.tags[0] }}</span>
+              </div>
+            </div>
+            <div class="article-text-content">
+              <div class="article-title">
+                {{ article.title }}
+              </div>
+              <div class="article-description">
+                {{ article.excerpt |  slice: 0, 175 |  append: '...' }}
+              </div>
+              <div class="article-publish-date">
+                <svg role="presentation" fill="none" focusable="false" stroke-width="1.5" width="16" height="16" class="icon icon-blog-date" viewBox="0 0 16 16">
+                  <path d="M5.372 1v2.877M10.455 1v2.877" stroke="currentColor" stroke-linecap="round"></path>
+                  <path d="M14.338 7.632H1.497l.179-4.57 6.164-.448 6.497.448v4.57Z" fill="currentColor" fill-opacity=".12"></path>
+                  <path d="M1.224 12.073c.183 1.631 1.508 2.925 3.147 3.004a73.18 73.18 0 0 0 3.546.083c1.256 0 2.413-.028 3.546-.083 1.639-.079 2.964-1.374 3.146-3.004.124-1.099.225-2.224.225-3.37 0-1.147-.102-2.273-.225-3.371-.182-1.631-1.507-2.925-3.146-3.004a73.22 73.22 0 0 0-3.546-.083 73.22 73.22 0 0 0-3.546.083c-1.639.079-2.964 1.374-3.147 3.004C1.101 6.43 1 7.556 1 8.703c0 1.146.102 2.272.224 3.37ZM1.331 7.202h13.24" stroke="currentColor"></path>
+                </svg>
+                <div class="span">{{ article.published_at |  split: ' ' |  first }}</div>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+    
+    {%- if paginate.pages > 1 -%}
+      {%- render 'pagination', paginate: paginate -%}
+    {%- endif -%}
+    </div>
+  </marmeto-component-blog-tags>
+{%- endpaginate -%}
+
+
+
+
+{% schema %}
+{
+  "name": "t:sections.main-blog.name",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.main-blog.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "options": [
+        {
+          "value": "grid",
+          "label": "t:sections.main-blog.settings.layout.options__1.label"
+        },
+        {
+          "value": "collage",
+          "label": "t:sections.main-blog.settings.layout.options__2.label"
+        }
+      ],
+      "default": "collage",
+      "label": "t:sections.main-blog.settings.layout.label",
+      "info": "t:sections.main-blog.settings.layout.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "default": true,
+      "label": "t:sections.main-blog.settings.show_image.label"
+    },
+    {
+      "type": "select",
+      "id": "image_height",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.main-blog.settings.image_height.options__1.label"
+        },
+        {
+          "value": "small",
+          "label": "t:sections.main-blog.settings.image_height.options__2.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.main-blog.settings.image_height.options__3.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.main-blog.settings.image_height.options__4.label"
+        }
+      ],
+      "default": "medium",
+      "label": "t:sections.main-blog.settings.image_height.label",
+      "info": "t:sections.main-blog.settings.image_height.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "default": true,
+      "label": "t:sections.main-blog.settings.show_date.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "default": false,
+      "label": "t:sections.main-blog.settings.show_author.label"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.main-blog.settings.paragraph.content"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ]
+}
+{% endschema %}
